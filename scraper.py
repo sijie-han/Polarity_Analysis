@@ -4,14 +4,14 @@ import numpy as np
 from google_play_scraper import Sort, reviews_all, reviews
 from datetime import datetime
 from app_store_scraper import AppStore
-# 读取包含多个app信息的CSV文件
+# reading a csv file that contains the app id from both app store and google play store
 app_data = pd.read_csv('app_data - Sheet1.csv')
-# 循环处理每个app
+# iterate through each app
 for index, row in app_data.iterrows():
     app_name = row['app_name']
     app_id = row['app_id']
     google_id = row['google_id']
-    # 获取Google Play Store的评论数据
+    # Get the data from the us google play store
     us_reviews, _ = reviews(
         google_id,
         lang='en',
@@ -19,17 +19,17 @@ for index, row in app_data.iterrows():
         sort=Sort.NEWEST,
         count=200000
     )
-    # 获取App Store的评论数据
+    # Get reviews from App Store 
     after_date = datetime(2020, 1, 1)
-    slack = AppStore(
+    apple = AppStore(
         country='us',
         app_name=str(app_name),
         app_id=str(app_id)
     )
-    slack.review(how_many=200000, after=after_date, sleep=1)
-    slackdf = pd.DataFrame(np.array(slack.reviews), columns=['review'])
-    slackdf2 = slackdf.join(pd.DataFrame(slackdf.pop('review').tolist()))
-    slackdf2 = slackdf2.rename(columns={
+    apple.review(how_many=200000, after=after_date, sleep=1)
+    appledf = pd.DataFrame(np.array(apple.reviews), columns=['review'])
+    appledf2 = appledf.join(pd.DataFrame(appledf.pop('review').tolist()))
+    appledf2 = appledf2.rename(columns={
         'review': 'content',
         'userName': 'userName',
         'rating': 'score',
@@ -37,9 +37,9 @@ for index, row in app_data.iterrows():
     })
 
     # 整合两个数据源的评论数据
-    df_busu = pd.DataFrame(np.array(us_reviews), columns=['review'])
-    df_busu = df_busu.join(pd.DataFrame(df_busu.pop('review').tolist()))
-    combined_df = pd.concat([slackdf2, df_busu])
+    df_total = pd.DataFrame(np.array(us_reviews), columns=['review'])
+    df_total = df_total.join(pd.DataFrame(df_total.pop('review').tolist()))
+    combined_df = pd.concat([appledf2, df_total])
     combined_df = combined_df.loc[:, ['at', 'content', 'userName', 'score']]
 
     # 筛选2020年1月1日之后的评论数据
