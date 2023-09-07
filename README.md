@@ -4,7 +4,7 @@ Using machine learning to analyze app reviews for suicide prevention apps
 Using Apple app store and Google play store api to obtain the user reviews of suicide prevention related apps.
 
 ## Data Extraction results
-![]()
+![](Annotaion.jpeg)
 - Positive:85665
 - Negative:21141
 - Neutral:4216  
