@@ -36,16 +36,16 @@ for index, row in app_data.iterrows():
         'date': 'at',
     })
 
-    # 整合两个数据源的评论数据
+    # Immerge the reviews from two app stores
     df_total = pd.DataFrame(np.array(us_reviews), columns=['review'])
     df_total = df_total.join(pd.DataFrame(df_total.pop('review').tolist()))
     combined_df = pd.concat([appledf2, df_total])
     combined_df = combined_df.loc[:, ['at', 'content', 'userName', 'score']]
 
-    # 筛选2020年1月1日之后的评论数据
+    # Filter only the reviews after 2020-01-01
     after_date = pd.to_datetime('2020-01-01')
     filtered_df = combined_df[combined_df['at'] >= after_date]
 
-    # 将结果保存到CSV文件
+    # Save the result to a csv file
     file_name = app_name + '_reviews.csv'
     filtered_df.to_csv(file_name, index=False)
